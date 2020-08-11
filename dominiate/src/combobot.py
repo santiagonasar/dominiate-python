@@ -13,7 +13,7 @@
 
 import numpy as np
 
-from . import cards as c
+from dominiate.src import cards as c
 from .basic_ai import BigMoney
 from .game import Game
 
