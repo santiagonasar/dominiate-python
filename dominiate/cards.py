@@ -1,5 +1,5 @@
-from game import curse, estate, duchy, province, copper, silver, gold
-from game import Card, TrashDecision, DiscardDecision
+from .game import curse, estate, duchy, province, copper, silver, gold
+from .game import Card, TrashDecision, DiscardDecision
 
 # simple actions
 village = Card('Village', 3, actions=2, cards=1)

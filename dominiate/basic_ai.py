@@ -1,6 +1,6 @@
-from game import TrashDecision, DiscardDecision
-from players import AIPlayer, BigMoney
-import cards as c
+from .game import TrashDecision, DiscardDecision
+from .players import AIPlayer, BigMoney
+from . import cards as c
 import logging, sys
 
 class SmithyBot(BigMoney):
