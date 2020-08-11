@@ -1,10 +1,11 @@
-from .game import *
-from .players import *
-from .basic_ai import *
-from .combobot import *
-from .cards import variable_cards
-from collections import defaultdict
 import random
+from collections import defaultdict
+
+from .basic_ai import *
+from .cards import variable_cards
+from .combobot import *
+from .players import *
+
 
 def compare_bots(bots):
     scores = defaultdict(int)
@@ -21,6 +22,7 @@ def compare_bots(bots):
                 break
     return scores
 
+
 def test_game():
     player1 = smithyComboBot
     player2 = chapelComboBot
@@ -30,6 +32,7 @@ def test_game():
     results = game.run()
     return results
 
+
 def human_game():
     player1 = smithyComboBot
     player2 = chapelComboBot
@@ -38,6 +41,7 @@ def human_game():
     game = Game.setup([player1, player2, player3, player4], variable_cards[-10:])
     return game.run()
 
+
 if __name__ == '__main__':
-    #print compare_bots([smithyComboBot, chapelComboBot, HillClimbBot(2, 3, 40)])
+    # print compare_bots([smithyComboBot, chapelComboBot, HillClimbBot(2, 3, 40)])
     human_game()

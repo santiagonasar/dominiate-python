@@ -11,13 +11,16 @@
 # We're looking for strategies that gain more per turn than BigMoney would
 # after being run for the same number of turns.
 
+import numpy as np
+
+from . import cards as c
 from .basic_ai import BigMoney
 from .game import Game
-from . import cards as c
-import numpy as np
+
 
 def deck_value(deck):
     return sum([card.cost for card in deck]) - len(deck)
+
 
 def big_money_baseline():
     improvements = np.zeros((30,))
@@ -32,17 +35,19 @@ def big_money_baseline():
             improvements[turn] += delta
             counts[turn] += 1
             if game.over(): break
-        avg = [imp/count for imp, count in zip(improvements, counts)]
+        avg = [imp / count for imp, count in zip(improvements, counts)]
         print(avg)
         print(counts)
     return avg
 
+
 # precalculated; easier than loading a pickle or something
 baseline = np.array(
-   [1.8226, 1.8302, 2.4849, 2.5363, 3.2383, 3.6883, 3.9152, 4.4961,
-    4.5271, 4.8773, 4.9464, 4.9591, 5.0117, 5.2145, 5.2473, 5.2609,
-    5.1505, 5.1500, 5.2662, 5.4229]
+    [1.8226, 1.8302, 2.4849, 2.5363, 3.2383, 3.6883, 3.9152, 4.4961,
+     4.5271, 4.8773, 4.9464, 4.9591, 5.0117, 5.2145, 5.2473, 5.2609,
+     5.1505, 5.1500, 5.2662, 5.4229]
 )
+
 
 class IdealistComboBot(BigMoney):
     def __init__(self, strategy, name=None):
@@ -54,7 +59,7 @@ class IdealistComboBot(BigMoney):
         else:
             self.name = name
         BigMoney.__init__(self, 1, 2)
-    
+
     def before_turn(self, game):
         current_cards = game.state().all_cards()
         priority = []
@@ -75,7 +80,7 @@ class IdealistComboBot(BigMoney):
         self.log.debug('Strategy: %s' % self.strategy_priority)
         self.strategy_on = bool(priority)
         self.strategy_complete = not (priority or pending)
-    
+
     def buy_priority_order(self, decision):
         if self.strategy_complete:
             return BigMoney.buy_priority_order(self, decision)
@@ -86,7 +91,7 @@ class IdealistComboBot(BigMoney):
         choices = decision.choices()
         choices.sort(key=lambda x: self.buy_priority(decision, x))
         return choices[-1]
-    
+
     def test(self):
         improvements = np.zeros((30,))
         counts = np.zeros((30,), dtype='int32')
@@ -96,7 +101,7 @@ class IdealistComboBot(BigMoney):
             # Find a state where the strategy is done and the deck is
             # about to be shuffled
             while not (game.card_counts[c.province] <= 1 or
-                       (game.current_player().strategy_complete and 
+                       (game.current_player().strategy_complete and
                         len(game.state().drawpile) < 5)):
                 game = game.take_turn()
                 turn_count += 1
@@ -109,15 +114,16 @@ class IdealistComboBot(BigMoney):
                     before_value = deck_value(game1.state().all_cards())
                     game2 = game1.take_turn()
                     after_value = deck_value(game2.state().all_cards())
-                    improvements[turn_count+1] +=\
-                      (after_value - before_value - baseline[turn_count+1])
-                    counts[turn_count+1] += 1
-            avg = improvements/counts
-            overall = np.sum(improvements)/np.sum(counts)
+                    improvements[turn_count + 1] += \
+                        (after_value - before_value - baseline[turn_count + 1])
+                    counts[turn_count + 1] += 1
+            avg = improvements / counts
+            overall = np.sum(improvements) / np.sum(counts)
             self.log.info(str(overall))
             self.log.info('\n%s' % avg)
         self.log.info('Overall gain: %s' % overall)
         return overall
+
 
 class ComboBot(IdealistComboBot):
     def buy_priority_order(self, decision):
@@ -128,20 +134,19 @@ class ComboBot(IdealistComboBot):
 
 
 smithyComboBot = ComboBot([(c.smithy, 2), (c.smithy, 6)],
-                   name='smithyComboBot')
+                          name='smithyComboBot')
 
 chapelComboBot = ComboBot([(c.chapel, 0),
                            (c.laboratory, 0),
                            (c.laboratory, 0),
                            (c.laboratory, 0),
                            (c.market, 0),
-                          ], name='chapelComboBot')
+                           ], name='chapelComboBot')
 chapelComboBot2 = ComboBot([(c.chapel, 0), (c.smithy, 2), (c.smithy, 6),
                             (c.festival, 0), (c.festival, 4)],
-                   name='chapelComboBot2')
+                           name='chapelComboBot2')
 
 if __name__ == '__main__':
     strategy = chapelComboBot
     strategy.setLogLevel(logging.INFO)
     strategy.test()
-
